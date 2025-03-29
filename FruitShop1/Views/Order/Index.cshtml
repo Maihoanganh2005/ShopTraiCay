@@ -1,0 +1,84 @@
+﻿@model IEnumerable<FruitShop1.Models.Order>
+<h2>Quản lý đơn hàng</h2>
+
+@if (TempData["Success"] != null)
+{
+    <div class="alert alert-success">@TempData["Success"]</div>
+}
+@if (TempData["Error"] != null)
+{
+    <div class="alert alert-danger">@TempData["Error"]</div>
+}
+
+@if (!Model.Any())
+{
+    <p>Không có đơn hàng nào để hiển thị.</p>
+}
+else
+{
+    <table class="table table-bordered">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Khách hàng</th>
+                <th>Email</th>
+                <th>Địa chỉ</th>
+                <th>Ngày đặt</th>
+                <th>Tổng tiền</th>
+                <th>Trạng thái</th>
+                <th>Hành động</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var order in Model)
+            {
+                <tr>
+                    <td>@order.Id</td>
+                    <td>@order.CustomerName</td>
+                    <td>@order.Email</td>
+                    <td>@order.Address</td>
+                    <td>@order.OrderDate.ToString("dd/MM/yyyy HH:mm")</td>
+                    <td>@order.TotalAmount.ToString("N0") VNĐ</td>
+                    <td>
+                        @switch (order.Status)
+                        {
+                            case "Chờ xác nhận":
+                                <span class="badge bg-warning text-dark">@order.Status</span>
+                                break;
+                            case "Đã xác nhận":
+                                <span class="badge bg-success">@order.Status</span>
+                                break;
+                            case "Đang xử lý":
+                                <span class="badge bg-info">@order.Status</span>
+                                break;
+                            case "Đã giao":
+                                <span class="badge bg-primary">@order.Status</span>
+                                break;
+                            case "Đã hủy":
+                                <span class="badge bg-danger">@order.Status</span>
+                                break;
+                            default:
+                                <span class="badge bg-secondary">@order.Status</span>
+                                break;
+                        }
+                    </td>
+                    <td>
+                        @if (order.Status == "Chờ xác nhận")
+                        {
+                            <form asp-action="UpdateStatus" method="post" style="display:inline;">
+                                <input type="hidden" name="orderId" value="@order.Id" />
+                                <input type="hidden" name="status" value="Đã xác nhận" />
+                                <button type="submit" class="btn btn-success">✅ Xác nhận</button>
+                            </form>
+                        }
+                        <form asp-action="DeleteOrder" method="post" style="display:inline;"
+                              onsubmit="return confirm('Bạn có chắc chắn muốn xóa đơn hàng này không?');">
+                            <input type="hidden" name="id" value="@order.Id" />
+                            <button type="submit" class="btn btn-danger">🗑️ Xóa</button>
+                        </form>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}

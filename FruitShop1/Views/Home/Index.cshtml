@@ -1,0 +1,64 @@
+﻿@model IEnumerable<FruitShop1.Models.Fruit>
+
+@{
+    ViewData["Title"] = "Trang Chủ - FruitShop";
+}
+
+<!-- 🏠 Banner -->
+<div class="hero-banner text-center text-white d-flex align-items-center justify-content-center">
+    <h1 class="fw-bold bg-dark bg-opacity-50 p-3 rounded">Chào mừng đến với FruitShop 🍉</h1>
+</div>
+
+<!-- 🥭 Danh Mục Trái Cây -->
+<section class="container mt-4 mb-5">
+    <h2 class="text-center mb-4 text-primary fw-bold">🍍 Danh Mục</h2>
+    <div class="row g-3 justify-content-center">
+        @if (ViewBag.Categories != null && ViewBag.Categories.Count > 0)
+        {
+            @foreach (var category in ViewBag.Categories)
+            {
+                <div class="col-lg-2 col-md-3 col-sm-4 col-6">
+                    <a href="/Fruit?categoryId=@category.Id" class="text-decoration-none">
+                        <div class="category-card shadow-sm border-0 text-center py-3 bg-white rounded">
+                            <h6 class="card-title fw-bold text-dark mb-0">@category.Name</h6>
+                        </div>
+                    </a>
+                </div>
+            }
+        }
+        else
+        {
+            <p class="text-center text-muted">Không có danh mục nào.</p>
+        }
+    </div>
+</section>
+
+<!-- 🍊 Sản Phẩm Nổi Bật -->
+<section class="container my-5">
+    <h2 class="text-center mb-4 text-primary fw-bold">🔥 Sản Phẩm Nổi Bật</h2>
+    <div class="row g-4">
+        @if (ViewBag.FeaturedFruits != null && ViewBag.FeaturedFruits.Count > 0)
+        {
+            @foreach (var fruit in ViewBag.FeaturedFruits)
+            {
+                    <div class="col-lg-3 col-md-4 col-sm-6 col-12">
+                        <div class="card shadow-sm border-0 fade-in h-100">
+                            <img src="@Url.Content("~/images/" + (string.IsNullOrEmpty(fruit.ImageUrl) ? "default.jpg" : fruit.ImageUrl))"
+                                 class="card-img-top" alt="@fruit.Name" style="height: 200px; object-fit: cover;">
+                            <div class="card-body text-center d-flex flex-column justify-content-between">
+                                <div>
+                                    <h5 class="card-title fw-bold">@fruit.Name</h5>
+                                    <p class="price text-danger fw-bold mb-3">@fruit.Price.ToString("N0") VNĐ</p>
+                                </div>
+                                <a href="/Fruit/Details/@fruit.Id" class="btn btn-primary btn-sm">Xem Chi Tiết</a>
+                            </div>
+                        </div>
+                    </div>
+            }
+        }
+        else
+        {
+            <p class="text-center text-muted">Không có sản phẩm nổi bật nào.</p>
+        }
+    </div>
+</section>

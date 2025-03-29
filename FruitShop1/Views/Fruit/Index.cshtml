@@ -1,0 +1,103 @@
+﻿@model IEnumerable<FruitShop1.Models.Fruit>
+
+@section FilterSection {
+    <div class="container mt-3">
+        <div class="filter-section bg-light p-3 rounded shadow-sm">
+            <h5 class="mb-3"><i class="fa fa-sort me-2"></i>Lọc Trái Cây</h5>
+            <form method="get" asp-controller="Fruit" asp-action="Index" class="filter-form">
+                <div class="row g-3 align-items-end">
+                    <!-- Sắp xếp theo -->
+                    <div class="col-md-3">
+                        <label class="form-label fw-bold">Sắp xếp theo</label>
+                        <select class="form-select" name="sortOrder">
+                            <option value="name" selected="@(ViewBag.SortOrder == "name" ? "selected" : null)">Tên A-Z</option>
+                            <option value="price_asc" selected="@(ViewBag.SortOrder == "price_asc" ? "selected" : null)">Giá tăng dần</option>
+                            <option value="price_desc" selected="@(ViewBag.SortOrder == "price_desc" ? "selected" : null)">Giá giảm dần</option>
+                        </select>
+                    </div>
+
+                    <!-- Lọc theo danh mục -->
+                    <div class="col-md-3">
+                        <label class="form-label fw-bold">Danh mục</label>
+                        <select class="form-select" name="categoryId">
+                            <option value="">Tất cả</option>
+                            @if (ViewBag.Categories != null)
+                            {
+                                foreach (var category in ViewBag.Categories)
+                                {
+                                    <option value="@category.Id" selected="@(ViewBag.CategoryId == category.Id ? "selected" : null)">@category.Name</option>
+                                }
+                            }
+                        </select>
+                    </div>
+
+                    <!-- Lọc theo khoảng giá -->
+                    <div class="col-md-2">
+                        <label class="form-label fw-bold">Giá tối thiểu</label>
+                        <input type="number" class="form-control" name="minPrice" placeholder="VD: 10000" step="1000" value="@ViewBag.MinPrice">
+                    </div>
+                    <div class="col-md-2">
+                        <label class="form-label fw-bold">Giá tối đa</label>
+                        <input type="number" class="form-control" name="maxPrice" placeholder="VD: 500000" step="1000" value="@ViewBag.MaxPrice">
+                    </div>
+
+                    <!-- Nút áp dụng bộ lọc -->
+                    <div class="col-md-2">
+                        <button type="submit" class="btn btn-buy w-100">🍍 Lọc</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+}
+
+<div class="row">
+    @if (Model == null || !Model.Any())
+    {
+        <p class="text-center">Không tìm thấy sản phẩm nào. Tổng sản phẩm: @(Model?.Count() ?? 0)</p>
+    }
+    else
+    {
+        <p class="text-center">Tổng sản phẩm: @Model.Count()</p>
+        @foreach (var fruit in Model)
+        {
+            <div class="col-md-4 mb-4">
+                <div class="card shadow-sm border-0 fade-in h-100" style="max-width: 300px; margin: 0 auto;">
+                    <img src="@Url.Content("~/images/" + (string.IsNullOrEmpty(fruit.ImageUrl) ? "default.jpg" : fruit.ImageUrl))"
+                         alt="@fruit.Name" class="card-img-top" style="height: 200px; width: 100%; object-fit: cover;">
+                    <div class="card-body text-center d-flex flex-column justify-content-between">
+                        <div>
+                            <h5 class="card-title">@fruit.Name</h5>
+                            <p class="text-muted mb-2" style="font-size: 0.9rem; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; text-overflow: ellipsis;">
+                                @fruit.Description
+                            </p>
+                            <p class="price text-danger fw-bold mb-2">@fruit.Price.ToString("N0") VNĐ</p>
+                            <p class="mb-3">@(fruit.Stock > 0 ? "Còn hàng" : "Hết hàng")</p>
+                        </div>
+                        <div class="d-flex gap-2 justify-content-center">
+                            <!-- 📋 Nút xem chi tiết -->
+                            <a asp-controller="Fruit" asp-action="Details" asp-route-id="@fruit.Id" class="btn btn-outline-primary btn-sm">
+                                📋 Xem Chi Tiết
+                            </a>
+
+                            <!-- 🛒 Nút thêm vào giỏ hàng -->
+                            @if (fruit.Stock > 0)
+                            {
+                                <a asp-controller="Cart" asp-action="AddToCart" asp-route-id="@fruit.Id" class="btn btn-primary btn-sm">
+                                    🛒 Thêm vào giỏ hàng
+                                </a>
+                            }
+                            else
+                            {
+                                <button class="btn btn-secondary btn-sm" disabled>Hết hàng</button>
+                            }
+                        </div>
+
+
+                    </div>
+                </div>
+            </div>
+        }
+    }
+</div>
+

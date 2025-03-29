@@ -1,0 +1,40 @@
+﻿@model List<FruitShop1.Models.Fruit>
+
+<h2>Danh sách sản phẩm yêu thích</h2>
+
+@if (!Model.Any())
+{
+    <p>Chưa có sản phẩm nào trong wishlist.</p>
+}
+else
+{
+    <table class="table table-bordered">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Ảnh</th>
+                <th>Tên sản phẩm</th>
+                <th>Giá</th>
+                <th>Hành động</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model)
+            {
+                <tr>
+                    <td>@item.Id</td>
+                    <td>
+                        <img src="@Url.Content("~/images/" + (string.IsNullOrEmpty(item.ImageUrl) ? "default.jpg" : item.ImageUrl))"
+                             alt="Ảnh sản phẩm @item.Name" style="width: 100px; height: 100px; object-fit: cover;"
+                             onerror="this.src='/images/default.jpg';">
+                    </td>
+                    <td>@item.Name</td>
+                    <td>@item.Price.ToString("N0") VNĐ</td>
+                    <td>
+                        <a asp-action="RemoveFromWishlist" asp-route-id="@item.Id" class="btn btn-danger">Xóa</a>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}

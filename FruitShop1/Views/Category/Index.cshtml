@@ -1,0 +1,37 @@
+﻿@model IEnumerable<FruitShop1.Models.Category>
+
+@{
+    ViewData["Title"] = "📂 Quản lý danh mục";
+}
+
+<h2>📂 Quản lý danh mục</h2>
+
+<!-- 🟢 Nút thêm danh mục -->
+<a asp-action="Create" class="btn btn-primary mb-3">➕ Thêm danh mục</a>
+
+<!-- 🔙 Nút quay lại Admin -->
+<a asp-controller="AdminFruit" asp-action="Index" class="btn btn-secondary mb-3">🔙 Quay lại</a>
+
+<!-- 🗂 Bảng danh sách danh mục -->
+<table class="table table-bordered">
+    <thead>
+        <tr>
+            <th>ID</th>
+            <th>📂 Tên danh mục</th>
+            <th>⚙️ Hành động</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var category in Model)
+        {
+            <tr>
+                <td>@category.Id</td>
+                <td>@category.Name</td>
+                <td>
+                    <a asp-action="Edit" asp-route-id="@category.Id" class="btn btn-warning">✏️ Sửa</a>
+                    <a asp-action="Delete" asp-route-id="@category.Id" class="btn btn-danger">🗑 Xóa</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

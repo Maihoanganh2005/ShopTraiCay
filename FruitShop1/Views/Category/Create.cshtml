@@ -1,0 +1,16 @@
+﻿@model FruitShop1.Models.Category
+
+@{
+    ViewData["Title"] = "➕ Thêm danh mục";
+}
+
+<h2>➕ Thêm danh mục</h2>
+
+<form asp-action="Create" method="post">
+    <div class="mb-3">
+        <label asp-for="Name" class="form-label">Tên danh mục</label>
+        <input asp-for="Name" class="form-control" required />
+    </div>
+    <button type="submit" class="btn btn-success">✅ Thêm</button>
+    <a asp-action="Index" class="btn btn-secondary">🔙 Quay lại</a>
+</form>

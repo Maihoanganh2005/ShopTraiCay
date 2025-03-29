@@ -1,0 +1,202 @@
+﻿@using Microsoft.AspNetCore.Identity
+@inject SignInManager<ApplicationUser> SignInManager
+@inject UserManager<ApplicationUser> UserManager
+
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="revisit-after" content="1 day" />
+    <meta name="handheldFriendly" content="true">
+    <link rel="shortcut icon" href="~/images/favicon.png" type="image/png" />
+    <title>@ViewData["Title"] - FruitShop 🍎</title>
+    <meta name="keywords" content="FruitShop, Trái cây chất lượng cao">
+    <meta name="robots" content="index,follow,noodp">
+
+    <!-- Bootstrap 5 -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <!-- FontAwesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true">
+</head>
+<body>
+    <!-- 🍎 Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-light mainHeader-middle sticky-top">
+        <div class="container">
+            <!-- Logo -->
+            <a class="navbar-brand fw-bold" asp-controller="Home" asp-action="Index">🍎 FruitShop</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="fas fa-bars"></span>
+            </button>
+
+            <!-- Thanh điều hướng -->
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <!-- Menu chính (bên trái) -->
+                <ul class="navbar-nav me-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" asp-controller="Home" asp-action="Index"><i class="fas fa-home"></i> Trang chủ</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" asp-controller="Fruit" asp-action="Index"><i class="fas fa-apple-alt"></i> Sản phẩm</a>
+                    </li>
+                </ul>
+
+                <!-- Menu người dùng (bên phải) -->
+                <ul class="navbar-nav ms-auto align-items-center">
+                    <!-- Thanh tìm kiếm (rút gọn kích thước) -->
+                    <li class="nav-item me-2">
+                        <form class="d-flex" method="get" asp-controller="Fruit" asp-action="Index">
+                            <input class="form-control form-control-sm me-1" type="search" name="search" placeholder="Tìm..." value="@ViewBag.Search">
+                            <button class="btn btn-outline-light btn-sm" type="submit"><i class="fas fa-search"></i></button>
+                        </form>
+                    </li>
+
+                    @if (SignInManager.IsSignedIn(User))
+                    {
+                        var currentUser = await UserManager.GetUserAsync(User);
+                        var roles = currentUser != null ? await UserManager.GetRolesAsync(currentUser) : new List<string>();
+
+                        @if (roles.Contains("Admin"))
+                        {
+                            <li class="nav-item dropdown me-2">
+                                <a class="nav-link dropdown-toggle text-dark fw-bold" href="#" id="adminDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                    <i class="fas fa-tools"></i> Quản lý
+                                </a>
+                                <ul class="dropdown-menu dropdown-menu-end shadow-sm border-0">
+                                    <li><a class="dropdown-item" asp-controller="AdminFruit" asp-action="Index"><i class="fas fa-apple-alt me-1"></i> Sản phẩm</a></li>
+                                    <li><a class="dropdown-item" asp-controller="Category" asp-action="Index"><i class="fas fa-folder me-1"></i> Danh mục</a></li>
+                                    <li><a class="dropdown-item" asp-controller="Order" asp-action="Index"><i class="fas fa-shopping-cart me-1"></i> Đơn hàng</a></li>
+                                    <li><a class="dropdown-item" asp-controller="User" asp-action="Index"><i class="fas fa-users me-1"></i> Người dùng</a></li>
+                                    <li><hr class="dropdown-divider"></li>
+                                    <li><a class="dropdown-item" asp-controller="Report" asp-action="RevenueReport"><i class="fas fa-chart-line me-1"></i> Doanh thu</a></li>
+                                    <li><a class="dropdown-item" asp-controller="Report" asp-action="TopSellingProducts"><i class="fas fa-fire me-1"></i> Bán chạy</a></li>
+                                    <li><a class="dropdown-item" asp-controller="Report" asp-action="InventoryReport"><i class="fas fa-boxes me-1"></i> Tồn kho</a></li>
+                                    <li><a class="dropdown-item" asp-controller="Admin" asp-action="Dashboard"><i class="fas fa-tachometer-alt me-1"></i> Dashboard</a></li>
+                                </ul>
+                            </li>
+                        }
+                        <!-- Dropdown tên người dùng với mục Xem điểm thưởng -->
+                        <li class="nav-item dropdown me-2">
+                            <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                <i class="fas fa-user"></i> @User.Identity.Name
+                            </a>
+                            <ul class="dropdown-menu dropdown-menu-end">
+                                <li><a class="dropdown-item" asp-controller="Cart" asp-action="Index"><i class="fas fa-shopping-cart me-1"></i> Giỏ hàng</a></li>
+                                <li><a class="dropdown-item" asp-controller="Order" asp-action="MyOrders"><i class="fas fa-list-alt me-1"></i> Lịch sử mua hàng</a></li>
+                                <li><a class="dropdown-item" asp-controller="Account" asp-action="RewardPoints"><i class="fas fa-star me-1"></i> Xem điểm thưởng (@(currentUser?.RewardPoints ?? 0))</a></li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li><a class="dropdown-item text-warning" asp-controller="Account" asp-action="Logout"><i class="fas fa-sign-out-alt me-1"></i> Đăng xuất</a></li>
+                            </ul>
+                        </li>
+                    }
+                    else
+                    {
+                        <li class="nav-item me-2">
+                            <a class="nav-link" asp-controller="Account" asp-action="Login"><i class="fas fa-sign-in-alt"></i> Đăng nhập</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" asp-controller="Account" asp-action="Register"><i class="fas fa-user-plus"></i> Đăng ký</a>
+                        </li>
+                    }
+                    <!-- Nút Dark Mode -->
+                    <li class="nav-item ms-1">
+                        <button id="theme-toggle" class="btn btn-sm"><i class="fas fa-moon"></i></button>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- 🍋 Bộ lọc (Filter) -->
+    @RenderSection("FilterSection", required: false)
+
+    <!-- 🍋 Nội dung chính -->
+    <div class="container main-content py-4">
+        <main role="main">
+            @RenderBody()
+        </main>
+    </div>
+
+    <footer class="footer text-white py-5">
+        <div class="container">
+            <div class="row">
+                <!-- Cột 1: Logo & Giới thiệu -->
+                <div class="col-md-4">
+                    <h5 class="fw-bold logo">🍉 FruitShop</h5>
+                    <p>Trái cây tươi ngon, giao hàng tận nơi.</p>
+                </div>
+
+                <!-- Cột 2: Liên hệ -->
+                <div class="col-md-4">
+                    <h5 class="fw-bold">Liên hệ</h5>
+                    <p><i class="fas fa-map-marker-alt"></i> 46 Trương Hán Siêu, TP. HCM</p>
+                    <p><i class="fas fa-phone"></i> <a href="tel:0909123456" class="text-white">0909 123 456</a></p>
+                    <p><i class="fas fa-envelope"></i> <a href="mailto:info@fruitshop.com" class="text-white">HoangAnh@fruitshop.com</a></p>
+                </div>
+
+                <!-- Cột 3: Đăng ký nhận tin -->
+                <div class="col-md-4">
+                    <h5 class="fw-bold">Nhận tin khuyến mãi</h5>
+                    <form class="subscribe-form">
+                        <input type="email" class="subscribe-input" placeholder="Nhập email của bạn" required>
+                        <button type="submit" class="subscribe-btn">Gửi</button>
+                    </form>
+                </div>
+            </div>
+
+            <hr class="border-light">
+
+            <!-- Mạng xã hội -->
+            <div class="text-center mt-3">
+                <a href="#" class="social-icon"><i class="fab fa-facebook"></i></a>
+                <a href="#" class="social-icon"><i class="fab fa-instagram"></i></a>
+                <a href="#" class="social-icon"><i class="fab fa-twitter"></i></a>
+                <a href="#" class="social-icon"><i class="fab fa-youtube"></i></a>
+            </div>
+
+            <!-- Dòng bản quyền -->
+            <div class="text-center mt-3">
+                <p class="mb-0">© 2025 FruitShop 🍉 - Tất cả quyền được bảo lưu.</p>
+            </div>
+        </div>
+    </footer>
+
+
+    <!-- 🟢 Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js" defer></script>
+    <script src="~/lib/jquery/dist/jquery.min.js" defer></script>
+    <script src="~/js/site.js" asp-append-version="true" defer></script>
+
+    <!-- 🌙 Dark Mode Script -->
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const themeToggle = document.getElementById("theme-toggle");
+            const currentTheme = localStorage.getItem("theme") || "light";
+            if (currentTheme === "dark") {
+                document.body.classList.add("dark-mode");
+                themeToggle.innerHTML = "☀️";
+            } else {
+                themeToggle.innerHTML = "🌙";
+            }
+            themeToggle.addEventListener("click", function () {
+                document.body.classList.toggle("dark-mode");
+                const newTheme = document.body.classList.contains("dark-mode") ? "dark" : "light";
+                localStorage.setItem("theme", newTheme);
+                themeToggle.innerHTML = newTheme === "dark" ? "☀️" : "🌙";
+            });
+            const header = document.querySelector(".mainHeader-middle");
+            if (header) {
+                const updateHeaderHeight = () => {
+                    document.documentElement.style.setProperty('--header-height', `${header.offsetHeight}px`);
+                };
+                updateHeaderHeight();
+                window.addEventListener('resize', updateHeaderHeight);
+            }
+        });
+    </script>
+
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

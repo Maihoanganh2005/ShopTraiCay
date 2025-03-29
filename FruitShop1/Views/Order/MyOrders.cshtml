@@ -1,0 +1,131 @@
+﻿@model IEnumerable<FruitShop1.Models.Order>
+
+@{
+    ViewData["Title"] = "Lịch sử mua hàng";
+}
+
+<h2>Lịch sử mua hàng</h2>
+
+@if (TempData["Success"] != null)
+{
+    <div class="alert alert-success">@TempData["Success"]</div>
+}
+@if (TempData["Error"] != null)
+{
+    <div class="alert alert-danger">@TempData["Error"]</div>
+}
+
+@if (!Model.Any())
+{
+    <p>Bạn chưa có đơn hàng nào.</p>
+}
+else
+{
+    <table class="table table-bordered">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Ngày đặt</th>
+                <th>Tổng tiền</th>
+                <th>Trạng thái</th>
+                <th>Dự kiến giao</th>
+                <th>Hoàn trả</th>
+                <th>Hành động</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var order in Model)
+            {
+                <tr>
+                    <td>@order.Id</td>
+                    <td>@order.OrderDate.ToString("dd/MM/yyyy")</td>
+                    <td>@order.TotalAmount.ToString("N0") VNĐ</td>
+                    <td>
+                        @switch (order.Status)
+                        {
+                            case "Chờ xác nhận":
+                                <span class="badge bg-warning text-dark">Chưa duyệt</span>
+                                break;
+                            case "Đã xác nhận":
+                                <span class="badge bg-success">Đã duyệt</span>
+                                break;
+                            case "Đang xử lý":
+                                <span class="badge bg-info">Đang xử lý</span>
+                                break;
+                            case "Đã giao":
+                                <span class="badge bg-primary">Đã giao</span>
+                                break;
+                            case "Đã hủy":
+                                <span class="badge bg-danger">Đã hủy</span>
+                                break;
+                            default:
+                                <span class="badge bg-secondary">@order.Status</span>
+                                break;
+                        }
+                    </td>
+                    <td>
+                        @if (order.EstimatedDeliveryDate.HasValue && order.Status != "Đã hủy" && order.Status != "Đã giao")
+                        {
+                            var daysLeft = (order.EstimatedDeliveryDate.Value - DateTime.Now).Days;
+                            <span>@order.EstimatedDeliveryDate.Value.ToString("dd/MM/yyyy")</span>
+                            @if (daysLeft > 0)
+                            {
+                                <span class="text-muted"> (Còn @daysLeft ngày)</span>
+                            }
+                            else if (daysLeft == 0)
+                            {
+                                <span class="text-success"> (Hôm nay)</span>
+                            }
+                            else
+                            {
+                                <span class="text-danger"> (Trễ hạn)</span>
+                            }
+                        }
+                        else
+                        {
+                            <span class="text-muted">Không có</span>
+                        }
+                    </td>
+                    <td>
+                        @if (order.Status == "Đã giao" && order.RefundStatus == "None")
+                        {
+                            <form asp-action="RequestRefund" method="post">
+                                <input type="hidden" name="orderId" value="@order.Id" />
+                                <button type="submit" class="btn btn-warning">Yêu cầu hoàn trả</button>
+                            </form>
+                        }
+                        else if (order.RefundStatus == "Pending")
+                        {
+                            <span class="text-warning">Đang chờ xử lý</span>
+                        }
+                        else if (order.RefundStatus == "Approved")
+                        {
+                            <span class="text-success">Hoàn tiền thành công</span>
+                        }
+                        else if (order.RefundStatus == "Rejected")
+                        {
+                            <span class="text-danger">Đã bị từ chối</span>
+                        }
+                        else
+                        {
+                            <span class="text-muted">Không thể yêu cầu</span>
+                        }
+                    </td>
+                    <td>
+                        @if (order.Status == "Chờ xác nhận" || order.Status == "Đang xử lý")
+                        {
+                            <form asp-action="CancelOrder" method="post">
+                                <input type="hidden" name="orderId" value="@order.Id" />
+                                <button type="submit" class="btn btn-danger">Hủy đơn hàng</button>
+                            </form>
+                        }
+                        else
+                        {
+                            <span class="text-muted">Không thể hủy</span>
+                        }
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}

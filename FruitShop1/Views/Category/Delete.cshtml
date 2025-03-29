@@ -1,0 +1,14 @@
+﻿@model FruitShop1.Models.Category
+
+@{
+    ViewData["Title"] = "🗑 Xóa danh mục";
+}
+
+<h2>🗑 Xóa danh mục</h2>
+<p>Bạn có chắc chắn muốn xóa danh mục "<strong>@Model.Name</strong>" không?</p>
+
+<form asp-action="DeleteConfirmed" method="post">
+    <input type="hidden" asp-for="Id" />
+    <button type="submit" class="btn btn-danger">🗑 Xóa</button>
+    <a asp-action="Index" class="btn btn-secondary">🔙 Quay lại</a>
+</form>

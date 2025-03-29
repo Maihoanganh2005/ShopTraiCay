@@ -1,0 +1,38 @@
+﻿@model IEnumerable<Microsoft.AspNetCore.Identity.IdentityUser>
+
+<h2>👥 Quản lý người dùng</h2>
+
+<table class="table table-bordered" id="userTable">
+    <thead>
+        <tr>
+            <th>Email</th>
+            <th>Tên đăng nhập</th>
+            <th>Vai trò</th>
+            <th>Hành động</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var user in Model)
+        {
+            <tr>
+                <td>@user.Email</td>
+                <td>@user.UserName</td>
+                <td>@ViewBag.UserRoles[user.Id]</td>
+                <td>
+                    <a asp-action="EditRole" asp-route-id="@user.Id" class="btn btn-primary">🛠 Chỉnh sửa vai trò</a>
+                    <form asp-action="Delete" asp-route-id="@user.Id" method="post" style="display:inline;" onsubmit="return confirm('Bạn có chắc muốn xóa người dùng này?');">
+                        <button type="submit" class="btn btn-danger">🗑 Xóa</button>
+                    </form>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<script src="https://cdn.jsdelivr.net/npm/jquery@3.6.0/dist/jquery.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/datatables.net/js/jquery.dataTables.min.js"></script>
+<script>
+    $(document).ready(function () {
+        $('#userTable').DataTable();
+    });
+</script>

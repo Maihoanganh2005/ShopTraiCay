@@ -1,0 +1,17 @@
+﻿@model Microsoft.AspNetCore.Identity.IdentityUser
+
+<h2>🛠 Chỉnh sửa vai trò: @Model.Email</h2>
+
+<form asp-action="EditRole" method="post">
+    <input type="hidden" name="id" value="@Model.Id" />
+
+    <label>Chọn vai trò:</label>
+    <select name="roles" multiple class="form-control">
+        @foreach (var role in ViewBag.AllRoles as List<string>)
+        {
+            <option value="@role" selected="@(ViewBag.UserRoles.Contains(role))">@role</option>
+        }
+    </select>
+
+    <button type="submit" class="btn btn-success mt-3">💾 Lưu thay đổi</button>
+</form>

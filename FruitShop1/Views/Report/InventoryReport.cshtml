@@ -1,0 +1,22 @@
+﻿@model IEnumerable<dynamic>
+
+<h2>Thống kê tồn kho</h2>
+
+<table class="table table-bordered">
+    <thead>
+        <tr>
+            <th>Sản phẩm</th>
+            <th>Số lượng tồn kho</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr class="@(item.Stock < 5 ? "table-danger" : "")">
+                <!-- Nếu tồn kho < 5, tô đỏ hàng -->
+                <td>@item.Name</td>
+                <td>@item.Stock</td>
+            </tr>
+        }
+    </tbody>
+</table>

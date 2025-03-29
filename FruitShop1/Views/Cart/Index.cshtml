@@ -1,0 +1,112 @@
+﻿@model List<FruitShop1.Models.CartItem>
+
+@{
+    ViewData["Title"] = "Giỏ hàng";
+}
+
+<h2 class="text-center mb-4">Giỏ hàng</h2>
+
+@if (TempData["Error"] != null)
+{
+    <div class="alert alert-danger">@TempData["Error"]</div>
+}
+
+@if (TempData["Success"] != null)
+{
+    <div class="alert alert-success">@TempData["Success"]</div>
+}
+
+@if (TempData["DebugImageUrl"] != null)
+{
+    <div class="alert alert-info">Debug: @TempData["DebugImageUrl"]</div>
+}
+
+@if (Model.Any())
+{
+    <table class="table table-bordered mb-4">
+        <thead>
+            <tr>
+                <th>Hình ảnh</th>
+                <th>Sản phẩm</th>
+                <th>Đơn giá</th>
+                <th>Số lượng</th>
+                <th>Tổng tiền</th>
+                <th>Hành động</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model)
+            {
+                <tr>
+                    <td>
+                        <img src="@Url.Content("~/images/" + (string.IsNullOrEmpty(item.ImageUrl) ? "default.jpg" : item.ImageUrl))"
+                             alt="@item.Name"
+                             class="img-thumbnail"
+                             style="width: 120px; height: 120px; object-fit: cover;">
+                    </td>
+                    <td>@item.Name</td>
+                    <td>@item.Price.ToString("N0") VNĐ</td>
+                    <td>
+                        <input type="number" class="form-control quantity" data-id="@item.FruitId" value="@item.Quantity" min="0" style="width: 80px;" />
+                    </td>
+                    <td>@((item.Price * item.Quantity).ToString("N0")) VNĐ</td>
+                    <td>
+                        <a href="@Url.Action("RemoveFromCart", new { id = item.FruitId })" class="btn btn-danger btn-sm">Xóa</a>
+                    </td>
+                </tr>
+            }
+        </tbody>
+        <tfoot>
+            <tr>
+                <td colspan="4" class="text-right"><strong>Tổng cộng:</strong></td>
+                <td id="totalAmount">@Model.Sum(c => c.Price * c.Quantity).ToString("N0") VNĐ</td>
+                <td></td>
+            </tr>
+        </tfoot>
+    </table>
+
+    <div class="text-center">
+        <a asp-action="ClearCart" class="btn btn-warning">Xóa toàn bộ</a>
+        <a asp-action="Checkout" asp-controller="Order" class="btn btn-primary">Thanh toán</a>
+    </div>
+}
+else
+{
+    <p class="text-center">Giỏ hàng của bạn đang trống.</p>
+}
+
+@section Scripts {
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        $(document).ready(function () {
+            $('.quantity').on('change', function () {
+                var fruitId = $(this).data('id');
+                var quantity = $(this).val();
+
+                $.ajax({
+                    url: '@Url.Action("UpdateCart")',
+                    type: 'POST',
+                    data: { id: fruitId, quantity: quantity },
+                    success: function (response) {
+                        if (response.success) {
+                            $('#totalAmount').text(response.total.toLocaleString('vi-VN') + ' VNĐ');
+                            if (quantity == 0) {
+                                $('tr').has('input[data-id="' + fruitId + '"]').remove();
+                            } else {
+                                var price = parseFloat($('tr').has('input[data-id="' + fruitId + '"]').find('td:eq(2)').text().replace(' VNĐ', '').replace(/\./g, ''));
+                                $('tr').has('input[data-id="' + fruitId + '"]').find('td:eq(4)').text((price * quantity).toLocaleString('vi-VN') + ' VNĐ');
+                            }
+                        } else {
+                            alert(response.message);
+                            location.reload();
+                        }
+                    },
+                    error: function () {
+                        alert('Đã xảy ra lỗi khi cập nhật giỏ hàng!');
+                        location.reload();
+                    }
+                });
+            });
+        });
+    </script>
+}

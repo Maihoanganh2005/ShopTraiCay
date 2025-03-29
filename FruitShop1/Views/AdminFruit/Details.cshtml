@@ -1,0 +1,35 @@
+﻿@model FruitShop1.Models.Fruit
+
+@{
+    ViewData["Title"] = "📄 Chi tiết sản phẩm";
+}
+
+<h2>📄 Chi tiết sản phẩm</h2>
+
+<table class="table">
+    <tr>
+        <th>📦 Tên sản phẩm:</th>
+        <td>@Model.Name</td>
+    </tr>
+    <tr>
+        <th>💰 Giá:</th>
+        <td>@Model.Price.ToString("N0") VNĐ</td>
+    </tr>
+    <tr>
+        <th>📂 Danh mục:</th>
+        <td>@Model.Category?.Name</td>
+    </tr>
+    <tr>
+        <th>📝 Chi tiết sản phẩm:</th>
+        <td>@Model.Description</td>
+    </tr>
+    <tr>
+        <th>📸 Hình ảnh:</th>
+        <td>
+            <img src="@Url.Content("~/images/" + Model.ImageUrl)" class="img-thumbnail" style="width: 200px;" />
+        </td>
+    </tr>
+</table>
+
+<a asp-action="Index" class="btn btn-secondary">🔙 Quay lại</a>
+<a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-warning">✏️ Sửa</a>

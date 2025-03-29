@@ -1,0 +1,249 @@
+﻿@{
+    Layout = "_AdminLayout";
+    ViewData["Title"] = "📊 Quản Lý Cửa Hàng Trái Cây";
+}
+
+<!-- 🔥 Header bổ sung -->
+<div class="mb-5">
+    <div class="d-flex justify-content-between align-items-center bg-white p-4 rounded shadow-lg">
+        <h2 class="mb-0 fw-bold text-dark"><i class="fas fa-seedling text-success me-2"></i> Dashboard Quản Lý</h2>
+        <div class="d-flex align-items-center gap-3">
+            <button class="btn btn-outline-primary btn-sm px-3" id="refresh-data"><i class="fas fa-sync me-1"></i> Làm mới</button>
+            <select class="form-select w-auto shadow-sm" id="time-filter">
+                <option value="7">7 ngày qua</option>
+                <option value="30">30 ngày qua</option>
+                <option value="90">90 ngày qua</option>
+            </select>
+        </div>
+    </div>
+</div>
+
+<!-- 🍎 Thống kê tổng quan -->
+<div class="row g-4 mb-5">
+    <div class="col-md-3 col-sm-6">
+        <div class="card shadow-lg border-0 text-white bg-primary dashboard-card">
+            <div class="card-body text-center py-4">
+                <i class="fas fa-apple-alt fa-3x mb-3"></i>
+                <h5 class="fw-light">Loại Trái Cây</h5>
+                <h3 class="fw-bold" id="total-products">@(ViewData["TotalProducts"] ?? 0)</h3>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-3 col-sm-6">
+        <div class="card shadow-lg border-0 text-white bg-success dashboard-card">
+            <div class="card-body text-center py-4">
+                <i class="fas fa-shopping-basket fa-3x mb-3"></i>
+                <h5 class="fw-light">Đơn Hàng</h5>
+                <h3 class="fw-bold" id="total-orders">@(ViewData["TotalOrders"] ?? 0)</h3>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-3 col-sm-6">
+        <div class="card shadow-lg border-0 text-white bg-warning dashboard-card">
+            <div class="card-body text-center py-4">
+                <i class="fas fa-coins fa-3x mb-3"></i>
+                <h5 class="fw-light">Doanh Thu</h5>
+                <h3 class="fw-bold" id="total-revenue">@(ViewData["TotalRevenue"] ?? 0) VNĐ</h3>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-3 col-sm-6">
+        <div class="card shadow-lg border-0 text-white bg-danger dashboard-card">
+            <div class="card-body text-center py-4">
+                <i class="fas fa-users fa-3x mb-3"></i>
+                <h5 class="fw-light">Khách Hàng</h5>
+                <h3 class="fw-bold" id="total-users">@(ViewData["TotalUsers"] ?? 0)</h3>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 📊 Biểu đồ doanh thu và đơn hàng -->
+<div class="row g-4 mb-5">
+    <div class="col-12">
+        <div class="card shadow-sm p-4 bg-white rounded">
+            <h3 class="mb-4 fw-bold text-dark"><i class="fas fa-chart-line text-primary me-2"></i> Doanh Thu & Đơn Hàng</h3>
+            <canvas id="revenueOrderChart" height="120"></canvas>
+        </div>
+    </div>
+</div>
+
+<!-- 🍊 Đơn hàng gần đây -->
+<div class="card shadow-sm p-4 bg-white rounded mb-5">
+    <h3 class="mb-4 fw-bold text-dark"><i class="fas fa-truck-loading text-info me-2"></i> Đơn Hàng Gần Đây</h3>
+    @if (ViewBag.RecentOrders != null && ViewBag.RecentOrders.Count > 0)
+    {
+        <div class="table-responsive">
+            <table class="table table-hover align-middle">
+                <thead class="table-light">
+                    <tr>
+                        <th>#</th>
+                        <th>Khách Hàng</th>
+                        <th>Ngày Đặt</th>
+                        <th>Tổng Tiền</th>
+                        <th>Trạng Thái</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var order in ViewBag.RecentOrders)
+                    {
+                        <tr>
+                            <td>@order.Id</td>
+                            <td class="d-flex align-items-center gap-2">
+                                <img src="@(order.CustomerAvatar ?? "/images/default-user.png")" class="rounded-circle border" width="40" height="40">
+                                <span>@(order.CustomerName ?? "Khách vãng lai")</span>
+                            </td>
+                            <td>@(order.OrderDate?.ToString("dd/MM/yyyy HH:mm") ?? "N/A")</td>
+                            <td><span class="fw-bold text-primary">@(order.TotalAmount ?? 0) VNĐ</span></td>
+                            <td>
+                                <span class="badge bg-@(order.Status == "Hoàn tất" ? "success" : order.Status == "Đang xử lý" ? "warning" : "danger") py-2 px-3">
+                                    @(order.Status)
+                                </span>
+                            </td>
+                            <td>
+                                <a href="@Url.Action("Details", "Order", new { id = order.Id })" class="btn btn-sm btn-outline-info"><i class="fas fa-eye"></i> Chi tiết</a>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+    else
+    {
+        <p class="text-muted"><i class="fas fa-exclamation-circle me-2"></i> Chưa có đơn hàng nào gần đây.</p>
+    }
+</div>
+
+<!-- 🍍 Trái cây bán chạy -->
+<div class="card shadow-sm p-4 bg-white rounded">
+    <h3 class="mb-4 fw-bold text-dark"><i class="fas fa-star text-warning me-2"></i> Trái Cây Bán Chạy Nhất</h3>
+    @if (ViewBag.TopSellingProducts != null && ViewBag.TopSellingProducts.Count > 0)
+    {
+        <div class="row g-4">
+            @foreach (var product in ViewBag.TopSellingProducts)
+            {
+                <div class="col-md-4 col-sm-6">
+                    <div class="card shadow-sm border-0 h-100 transition-hover">
+                        <img src="@product.ImageUrl" class="card-img-top" style="height: 200px; object-fit: cover;">
+                        <div class="card-body text-center">
+                            <h5 class="card-title fw-bold text-dark">@product.Name</h5>
+                            <p class="card-text text-muted">Đã bán: <span class="fw-bold text-success">@product.TotalSold kg</span></p>
+                            <p class="card-text text-muted">Doanh thu: <span class="fw-bold text-primary">@product.Revenue VNĐ</span></p>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+    else
+    {
+        <p class="text-muted"><i class="fas fa-exclamation-circle me-2"></i> Chưa có trái cây nào nổi bật.</p>
+    }
+</div>
+
+<!-- 🛠 Script Biểu đồ -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        // Biểu đồ Doanh thu & Đơn hàng
+        const revenueOrderChart = new Chart(document.getElementById('revenueOrderChart').getContext('2d'), {
+            type: 'line',
+            data: {
+                labels: ['T2', 'T3', 'T4', 'T5', 'T6', 'T7', 'CN'],
+                datasets: [{
+                    label: 'Doanh thu (VNĐ)',
+                    data: [5000000, 6500000, 8000000, 9200000, 11000000, 13000000, 15000000],
+                    borderColor: '#28a745',
+                    backgroundColor: 'rgba(40, 167, 69, 0.2)',
+                    fill: true,
+                    tension: 0.4,
+                    yAxisID: 'y'
+                }, {
+                    label: 'Số đơn hàng',
+                    data: [5, 8, 12, 15, 20, 25, 30],
+                    borderColor: '#007bff',
+                    backgroundColor: 'rgba(0, 123, 255, 0.2)',
+                    fill: true,
+                    tension: 0.4,
+                    yAxisID: 'y1'
+                }]
+            },
+            options: {
+                responsive: true,
+                scales: {
+                    y: { position: 'left', beginAtZero: true, title: { display: true, text: 'Doanh thu (VNĐ)', font: { size: 14 } } },
+                    y1: { position: 'right', beginAtZero: true, title: { display: true, text: 'Số đơn hàng', font: { size: 14 } } }
+                },
+                plugins: {
+                    legend: { position: 'top', labels: { font: { size: 14 } } },
+                    tooltip: { backgroundColor: '#333', titleFont: { size: 14 }, bodyFont: { size: 12 } }
+                }
+            }
+        });
+
+        // Làm mới dữ liệu (giả lập)
+        $('#refresh-data').click(function () {
+            $(this).find('i').addClass('fa-spin');
+            setTimeout(() => $(this).find('i').removeClass('fa-spin'), 1000);
+            alert('Đang làm mới dữ liệu...');
+            // Thêm logic thực tế để gọi API cập nhật dữ liệu tại đây
+        });
+
+        // Lọc theo thời gian
+        $('#time-filter').change(function () {
+            const days = $(this).val();
+            alert(`Đã chọn lọc dữ liệu trong ${days} ngày qua`);
+            // Thêm logic thực tế để cập nhật biểu đồ và số liệu theo khoảng thời gian
+        });
+    });
+</script>
+
+<style>
+    .dashboard-card {
+        border-radius: 15px;
+        transition: transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
+    }
+
+        .dashboard-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 15px 25px rgba(0, 0, 0, 0.2) !important;
+        }
+
+    .card {
+        border-radius: 15px;
+        transition: all 0.3s ease;
+    }
+
+    .transition-hover:hover {
+        transform: scale(1.03);
+        box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1) !important;
+    }
+
+    .table-hover tbody tr:hover {
+        background-color: #f8f9fa;
+        transition: background-color 0.2s ease;
+    }
+
+    .table th, .table td {
+        vertical-align: middle;
+    }
+
+    .btn-outline-primary {
+        border-radius: 10px;
+        transition: all 0.3s ease;
+    }
+
+        .btn-outline-primary:hover {
+            transform: scale(1.05);
+        }
+
+    .form-select {
+        border-radius: 10px;
+        padding: 0.5rem 1rem;
+    }
+</style>

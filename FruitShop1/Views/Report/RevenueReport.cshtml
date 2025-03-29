@@ -1,0 +1,21 @@
+﻿@model IEnumerable<dynamic>
+
+<h2>Báo cáo doanh thu năm @ViewBag.Year</h2>
+
+<table class="table table-bordered">
+    <thead>
+        <tr>
+            <th>Tháng</th>
+            <th>Doanh thu (VNĐ)</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>Tháng @item.Month</td>
+                <td>@item.TotalRevenue.ToString("N0") VNĐ</td>
+            </tr>
+        }
+    </tbody>
+</table>

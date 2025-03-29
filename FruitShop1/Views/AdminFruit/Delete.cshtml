@@ -1,0 +1,30 @@
+﻿@model FruitShop1.Models.Fruit
+
+@{
+    ViewData["Title"] = "🗑 Xóa sản phẩm";
+}
+
+<h2>🗑 Xóa sản phẩm</h2>
+
+<p>Bạn có chắc chắn muốn xóa sản phẩm này không?</p>
+
+<table class="table">
+    <tr>
+        <th>📦 Tên sản phẩm:</th>
+        <td>@Model.Name</td>
+    </tr>
+    <tr>
+        <th>💰 Giá:</th>
+        <td>@Model.Price.ToString("N0") VNĐ</td>
+    </tr>
+    <tr>
+        <th>📂 Danh mục:</th>
+        <td>@Model.Category?.Name</td>
+    </tr>
+</table>
+
+<form asp-action="DeleteConfirmed" method="post">
+    <input type="hidden" asp-for="Id" />
+    <button type="submit" class="btn btn-danger">🗑 Xóa</button>
+    <a asp-action="Index" class="btn btn-secondary">🔙 Quay lại</a>
+</form>

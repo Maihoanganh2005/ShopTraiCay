@@ -1,0 +1,72 @@
+﻿@model IEnumerable<FruitShop1.Models.Fruit>
+
+@{
+    ViewData["Title"] = "📦 Quản lý sản phẩm";
+}
+
+<h2>📦 Quản lý sản phẩm</h2>
+
+<div class="d-flex justify-content-between mb-3">
+    <!-- 🟢 Nút quản lý danh mục -->
+    <a asp-controller="Category" asp-action="Index" class="btn btn-info">📂 Quản lý danh mục</a>
+
+    <div>
+        <!-- 🟢 Nút thêm sản phẩm -->
+        <a asp-action="Create" class="btn btn-primary">➕ Thêm sản phẩm</a>
+    </div>
+</div>
+
+<!-- 🛒 Bảng danh sách sản phẩm -->
+<table class="table table-bordered" id="fruitTable">
+    <thead class="table-dark">
+        <tr>
+            <th>ID</th>
+            <th>📸 Ảnh</th>
+            <th>📦 Tên sản phẩm</th>
+            <th>💰 Giá</th>
+            <th>📂 Danh mục</th>
+            <th>⚙️ Hành động</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>@item.Id</td>
+                <td>
+                    <img src="@Url.Content("~/images/" + (string.IsNullOrEmpty(item.ImageUrl) ? "default.jpg" : item.ImageUrl))"
+                         alt="@item.Name"
+                         class="img-thumbnail"
+                         style="width: 80px; height: 80px; object-fit: cover;">
+                </td>
+                <td>@item.Name</td>
+                <td>@item.Price.ToString("N0") VNĐ</td>
+                <td>@item.Category?.Name</td>
+                <td>
+                    <a asp-action="Details" asp-route-id="@item.Id" class="btn btn-info">📄 Xem</a>
+                    <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-warning">✏️ Sửa</a>
+                    <a asp-action="Delete" asp-route-id="@item.Id" class="btn btn-danger">🗑 Xóa</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<!-- 📌 DataTable Scripts -->
+<script src="https://cdn.jsdelivr.net/npm/jquery@3.6.0/dist/jquery.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/datatables.net/js/jquery.dataTables.min.js"></script>
+<script>
+    $(document).ready(function () {
+        $('#fruitTable').DataTable({
+            "language": {
+                "search": "🔍 Tìm kiếm:",
+                "lengthMenu": "Hiển thị _MENU_ sản phẩm",
+                "info": "Hiển thị _START_ - _END_ trong _TOTAL_ sản phẩm",
+                "paginate": {
+                    "next": "➡️",
+                    "previous": "⬅️"
+                }
+            }
+        });
+    });
+</script>
